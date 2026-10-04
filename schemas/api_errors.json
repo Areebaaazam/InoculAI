@@ -1,0 +1,8 @@
+{
+  "400": {"error": "bad_request", "detail": "Missing required field: 'text'"},
+  "413": {"error": "payload_too_large", "detail": "Input exceeds 10000 characters"},
+  "422": {"error": "injection_detected", "detail": "Input contains prompt injection patterns and was rejected"},
+  "429": {"error": "rate_limited", "detail": "Too many requests. Wait 5 seconds and retry"},
+  "500": {"error": "llm_failure", "detail": "AI model returned malformed response after retry"},
+  "503": {"error": "model_unavailable", "detail": "Featherless API is unreachable. Try again shortly"}
+}

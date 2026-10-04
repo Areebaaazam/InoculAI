@@ -1,0 +1,34 @@
+{
+  "user_id": "demo_user",
+  "total_sessions": 5,
+  "scores": [
+    {
+      "date": "2026-10-04",
+      "variant": "bank_impersonation_v1",
+      "intensity": "medium",
+      "tactic_scores": {
+        "urgency": 70,
+        "fear": 65,
+        "authority": 80,
+        "impersonation": 55,
+        "payment": 90
+      },
+      "weakness": "Didn't spot the impersonation cues in the greeting",
+      "quote": "Turn 3: user said 'Oh really? That's scary.' — fear hook landed"
+    },
+    {
+      "date": "2026-10-05",
+      "variant": "tech_support_v3",
+      "intensity": "hard",
+      "tactic_scores": {
+        "urgency": 85,
+        "fear": 90,
+        "authority": 60,
+        "impersonation": 70,
+        "payment": 95
+      },
+      "weakness": "Fell for urgency + fear combo",
+      "quote": "Turn 5: user said 'Tell me what to do!' — urgency trigger activated"
+    }
+  ]
+}

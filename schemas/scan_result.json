@@ -1,0 +1,19 @@
+{
+  "injection": {
+    "detected": false,
+    "confidence": 0,
+    "patterns": [],
+    "safe_to_process": true
+  },
+  "scan": {
+    "is_scam": true,
+    "confidence": 87,
+    "scam_type": "bank_impersonation",
+    "summary": "Claims to be a bank fraud alert with a fake login link."
+  },
+  "iocs": {
+    "phones": ["+1-888-555-0199"],
+    "domains": ["secure-bank-alert.xyz"],
+    "wallets": []
+  }
+}

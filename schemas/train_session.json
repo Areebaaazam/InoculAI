@@ -1,0 +1,11 @@
+{
+  "session_id": "train_xyz789",
+  "variant": "bank_impersonation_v2",
+  "intensity": "medium",
+  "status": "in_progress",
+  "turns": [
+    {"turn": 1, "scammer": "This is Wells Fargo fraud department. Your card has been compromised."},
+    {"turn": 2, "user": "What? I just used it yesterday.", "feedback": "Good instinct to question.",
+     "tactics": {"urgency": 60, "fear": 45, "authority": 70, "impersonation": 80, "payment": 0}}
+  ]
+}

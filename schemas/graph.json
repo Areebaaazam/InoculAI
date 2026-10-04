@@ -1,0 +1,14 @@
+{
+  "nodes": [
+    {"id": "camp_001", "type": "campaign", "label": "Bank Impersonation — Chase Variant", "size": 8, "scams": 3},
+    {"id": "camp_002", "type": "campaign", "label": "Tech Support — Microsoft Scam", "size": 5, "scams": 2},
+    {"id": "ioc_phone_1", "type": "phone", "label": "+1-888-555-0199", "size": 3},
+    {"id": "ioc_domain_1", "type": "domain", "label": "secure-bank-alert.xyz", "size": 3},
+    {"id": "ioc_domain_2", "type": "domain", "label": "microsoft-support-ticket.com", "size": 2}
+  ],
+  "edges": [
+    {"source": "camp_001", "target": "ioc_phone_1"},
+    {"source": "camp_001", "target": "ioc_domain_1"},
+    {"source": "camp_002", "target": "ioc_domain_2"}
+  ]
+}

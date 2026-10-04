@@ -1,0 +1,19 @@
+{
+  "is_scam": true,
+  "confidence": 87,
+  "tactics": {
+    "urgency": 91,
+    "fear": 84,
+    "authority": 73,
+    "impersonation": 86,
+    "payment": 51
+  },
+  "attack_chain": ["authority", "fear", "urgency", "payment"],
+  "scam_type": "bank_impersonation",
+  "iocs": {
+    "phones": ["+1-888-555-0199"],
+    "domains": ["secure-bank-alert.xyz"],
+    "wallets": []
+  },
+  "campaign_id": "camp_001"
+}
