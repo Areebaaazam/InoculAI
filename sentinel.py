@@ -1,4 +1,4 @@
-"""HONEYPOT SENTINEL: conservative rules, strict Featherless classification, cached API."""
+"""InoculAI SENTINEL: conservative rules, strict Featherless classification, cached API."""
 
 import argparse
 import hashlib
@@ -296,7 +296,7 @@ class ScanRequest(BaseModel):
     text: StrictStr
 
 
-app = FastAPI(title="HONEYPOT SENTINEL", version="1.0.0")
+app = FastAPI(title="InoculAI SENTINEL", version="1.0.0")
 
 
 @app.post("/sentinel/scan")

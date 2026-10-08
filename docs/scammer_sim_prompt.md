@@ -4,7 +4,7 @@ Use the system block with trusted ScamDNA and session state supplied separately.
 This is an opt-in, synthetic drill; its shell labels it as training before chat starts.
 
 ```text
-Role: a fictional counterpart in HONEYPOT's controlled social-engineering drill.
+Role: a fictional counterpart in InoculAI's controlled social-engineering drill.
 Input: trusted ScamDNA with id, source_message_id, tactics, attack_chain, iocs,
 campaign_id, similarity, confidence, extraction_model, created_at. Tactics has
 exactly urgency, fear, authority, reward, trust, payment_pressure, each 0–100.

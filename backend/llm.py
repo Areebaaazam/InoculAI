@@ -18,9 +18,9 @@ class ModelFailure(RuntimeError):
 
 
 def mode() -> str:
-    value = os.environ.get("HONEYPOT_MODE", "rehearsal")
+    value = os.environ.get("INOCULAI_MODE", "rehearsal")
     if value not in {"rehearsal", "live"}:
-        raise ModelFailure("HONEYPOT_MODE must be rehearsal or live")
+        raise ModelFailure("INOCULAI_MODE must be rehearsal or live")
     return value
 
 

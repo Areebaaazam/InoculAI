@@ -1,1 +1,1 @@
-"""HONEYPOT's local, synthetic-only application."""
+"""InoculAI's local, synthetic-only application."""

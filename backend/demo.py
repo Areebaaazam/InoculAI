@@ -18,7 +18,7 @@ DEMO_REPLY = "I will verify independently through my usual channel."
 
 
 def run_demo(prime: bool) -> dict:
-    os.environ["HONEYPOT_MODE"] = "live"
+    os.environ["INOCULAI_MODE"] = "live"
     os.environ["SENTINEL_CACHE_ONLY"] = "0" if prime else "1"
     messages = [Message.model_validate(item) for item in json.loads((store.ROOT / "docs/fixtures/demo_messages.json").read_text(encoding="utf-8"))]
     inbound = next(message for message in messages if message.id == "msg_117")

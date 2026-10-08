@@ -1,4 +1,4 @@
-"""HONEYPOT: intake -> SENTINEL -> SWARM/DNA -> TRAIN ME -> immunity report."""
+"""InoculAI: intake -> SENTINEL -> SWARM/DNA -> TRAIN ME -> immunity report."""
 
 import json
 import os
@@ -46,7 +46,7 @@ async def lifespan(application):
     yield
 
 
-app = FastAPI(title="HONEYPOT", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="InoculAI", version="1.0.0", lifespan=lifespan)
 app.mount("/assets", StaticFiles(directory=store.ROOT / "frontend"), name="assets")
 app.add_api_route("/sentinel/scan", sentinel_scan, methods=["POST"])
 

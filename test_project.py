@@ -1,4 +1,4 @@
-"""Behavior tests for the complete synthetic HONEYPOT project."""
+"""Behavior tests for the complete synthetic InoculAI project."""
 
 import json
 import hashlib
@@ -20,8 +20,8 @@ REAL_CLIENT = httpx.Client
 
 @pytest.fixture(autouse=True)
 def isolate(monkeypatch, tmp_path):
-    monkeypatch.setenv("HONEYPOT_MODE", "rehearsal")
-    monkeypatch.setenv("HONEYPOT_DATA_PATH", str(tmp_path / "app.sqlite3"))
+    monkeypatch.setenv("INOCULAI_MODE", "rehearsal")
+    monkeypatch.setenv("INOCULAI_DATA_PATH", str(tmp_path / "app.sqlite3"))
     monkeypatch.setenv("SENTINEL_CACHE_PATH", str(tmp_path / "sentinel.sqlite3"))
     monkeypatch.setenv("FEATHERLESS_BASE_URL", "https://synthetic.example/v1")
     monkeypatch.setenv("FEATHERLESS_MODEL", "test/synthetic-model")
@@ -270,7 +270,7 @@ def test_canonical_schema_examples_match_runtime_models():
 
 
 def test_live_mode_full_pipeline_with_mock_provider(client, monkeypatch, provider):
-    monkeypatch.setenv("HONEYPOT_MODE", "live")
+    monkeypatch.setenv("INOCULAI_MODE", "live")
     extraction = {"tactics": {"urgency": 91, "fear": 84, "authority": 73, "reward": 12, "trust": 40, "payment_pressure": 51}, "attack_chain": ["authority", "fear", "urgency", "action"], "confidence": 0.9}
     opening = {"reply": "I'm with the fictional Alder review desk. May I explain the notice?", "stage": "authority", "intensities": {"urgency": 0, "fear": 0, "authority": 25, "reward": 0, "trust": 0, "payment_pressure": 0}}
     followup = {"reply": "Of course. You can take time to check.", "stage": "authority", "intensities": {"urgency": 0, "fear": 0, "authority": 15, "reward": 0, "trust": 0, "payment_pressure": 0}}
@@ -295,7 +295,7 @@ def test_live_mode_full_pipeline_with_mock_provider(client, monkeypatch, provide
 
 
 def test_live_invalid_safety_output_retries_then_review(dna, provider, monkeypatch):
-    monkeypatch.setenv("HONEYPOT_MODE", "live")
+    monkeypatch.setenv("INOCULAI_MODE", "live")
     invalid = {"reply": "Send your password to me.", "stage": "authority", "intensities": {"urgency": 0, "fear": 0, "authority": 60, "reward": 0, "trust": 0, "payment_pressure": 0}}
     calls = provider([invalid, invalid])
     with pytest.raises(llm.ModelFailure):
@@ -306,7 +306,7 @@ def test_live_invalid_safety_output_retries_then_review(dna, provider, monkeypat
 def test_live_score_failure_stops_drill_without_fake_report(client, provider, monkeypatch):
     state = client.post("/train/start", json={"dna_id": "dna_042", "consent": True}).json()["session"]
     client.post("/train/message", json={"session_id": state["session_id"], "text": "I will verify independently.", "synthetic": True})
-    monkeypatch.setenv("HONEYPOT_MODE", "live")
+    monkeypatch.setenv("INOCULAI_MODE", "live")
     provider(["bad", "bad"])
     response = client.post("/train/end", json={"session_id": state["session_id"]})
     assert response.status_code == 503 and response.json()["needs_review"]
@@ -316,7 +316,7 @@ def test_live_score_failure_stops_drill_without_fake_report(client, provider, mo
 
 
 def test_cache_only_live_miss_is_review(client, monkeypatch, provider):
-    monkeypatch.setenv("HONEYPOT_MODE", "live")
+    monkeypatch.setenv("INOCULAI_MODE", "live")
     monkeypatch.setenv("SENTINEL_CACHE_ONLY", "1")
     calls = provider([])
     response = client.post("/train/start", json={"dna_id": "dna_042", "consent": True})

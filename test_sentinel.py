@@ -1,4 +1,4 @@
-"""Offline behavior and contract tests for Jasdish's HONEYPOT package."""
+"""Offline behavior and contract tests for InoculAI's SENTINEL package."""
 
 import json
 import sqlite3

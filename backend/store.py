@@ -17,7 +17,7 @@ def _default_data_path() -> str:
 
 
 def connect():
-    path = Path(os.environ.get("HONEYPOT_DATA_PATH", _default_data_path()))
+    path = Path(os.environ.get("INOCULAI_DATA_PATH", _default_data_path()))
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, timeout=30)
     connection.execute("CREATE TABLE IF NOT EXISTS records (bucket TEXT, id TEXT, data TEXT NOT NULL, PRIMARY KEY(bucket,id))")
