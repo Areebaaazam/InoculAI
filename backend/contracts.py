@@ -124,21 +124,47 @@ class EngagementStart(Contract):
     message_id: StrictStr
 
 
-PII = re.compile(r"[\w.+-]+@[\w.-]+\.[a-z]{2,}|\b(?:\d[ -]?){7,19}\b|\b0x[a-f0-9]{40}\b", re.I)
+WALLET_IDENTIFIER = re.compile(r"\b0x[a-f0-9]{40}\b", re.I)
+PHONE_CANDIDATE = re.compile(r"\b\d[0-9 -]{5,30}\d\b")
 OUTBOUND = re.compile(r"https?://|\b(?:[a-z0-9-]+\.)+(?:com|net|org|io|xyz|top)\b", re.I)
 SECRET_ASK = re.compile(r"\b(?:send|share|enter|give|provide)\b[^.!?\n]{0,50}\b(?:password|OTP|PIN|card number|verification code|private key)\b", re.I)
 
 
+def has_phone_like_identifier(text: str) -> bool:
+    for match in PHONE_CANDIDATE.finditer(text):
+        digits = sum(char.isdigit() for char in match.group(0))
+        if 7 <= digits <= 19:
+            return True
+    return False
+
+
+def has_email_like_identifier(text: str) -> bool:
+    for token in text.split():
+        if token.count("@") != 1:
+            continue
+        local, domain = token.strip(".,;:!?()[]{}<>\"'").split("@", 1)
+        if not local or not domain or "." not in domain:
+            continue
+        if local[-1] == "." or domain[0] == "." or domain[-1] == ".":
+            continue
+        return True
+    return False
+
+
+def has_pii_like_identifier(text: str) -> bool:
+    return WALLET_IDENTIFIER.search(text) is not None or has_phone_like_identifier(text) or has_email_like_identifier(text)
+
+
 def safe_training_input(text: str) -> str:
     validate_text(text)
-    if PII.search(text) or OUTBOUND.search(text):
+    if has_pii_like_identifier(text) or OUTBOUND.search(text):
         raise ValueError("Use fictional text and training markers; real contacts, identifiers and links are rejected")
     return text
 
 
 def safe_agent_reply(reply: str, *, victim: bool = False) -> str:
     validate_text(reply)
-    if len(reply) > 900 or PII.search(reply) or OUTBOUND.search(reply) or SECRET_ASK.search(reply):
+    if len(reply) > 900 or has_pii_like_identifier(reply) or OUTBOUND.search(reply) or SECRET_ASK.search(reply):
         raise ValueError("generated reply violates the synthetic sandbox")
     if victim and re.search(r"\bI(?:'ve| have)?\s+(?:sent|paid|transferred|clicked|opened|downloaded|logged in)\b", reply, re.I):
         raise ValueError("victim may not claim an external action")
