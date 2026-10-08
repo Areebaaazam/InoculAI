@@ -102,6 +102,16 @@ def home():
     return FileResponse(store.ROOT / "frontend/index.html")
 
 
+@app.get("/styles.css", include_in_schema=False)
+def styles():
+    return FileResponse(store.ROOT / "frontend/styles.css", media_type="text/css")
+
+
+@app.get("/app.js", include_in_schema=False)
+def javascript():
+    return FileResponse(store.ROOT / "frontend/app.js", media_type="application/javascript")
+
+
 @app.get("/health")
 def health():
     return {"ok": True, "mode": mode(), "persona": "Margaret", "cache_only": os.environ.get("SENTINEL_CACHE_ONLY") == "1",
