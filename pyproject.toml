@@ -1,2 +1,13 @@
+[project]
+name = "inoculai"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+	"fastapi",
+	"uvicorn",
+	"httpx",
+	"pytest",
+]
+
 [tool.vercel]
 entrypoint = "backend.main:app"
