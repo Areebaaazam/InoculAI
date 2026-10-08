@@ -1,11 +1,58 @@
 {
-  "session_id": "train_xyz789",
-  "variant": "bank_impersonation_v2",
-  "intensity": "medium",
-  "status": "in_progress",
-  "turns": [
-    {"turn": 1, "scammer": "This is Wells Fargo fraud department. Your card has been compromised."},
-    {"turn": 2, "user": "What? I just used it yesterday.", "feedback": "Good instinct to question.",
-     "tactics": {"urgency": 60, "fear": 45, "authority": 70, "impersonation": 80, "payment": 0}}
-  ]
+  "session_id": "s_393be9c8a9c0",
+  "dna": {
+    "id": "dna_042",
+    "source_message_id": "msg_117",
+    "tactics": {
+      "urgency": 91,
+      "fear": 84,
+      "authority": 73,
+      "reward": 12,
+      "trust": 40,
+      "payment_pressure": 51
+    },
+    "attack_chain": [
+      "authority",
+      "fear",
+      "urgency",
+      "action"
+    ],
+    "iocs": {
+      "phones": [
+        "+91XXXXXXXXXX"
+      ],
+      "domains": [
+        "sbi-secure-verify.example"
+      ],
+      "wallets": [],
+      "payment_links": []
+    },
+    "campaign_id": "camp_042",
+    "similarity": 0.94,
+    "confidence": 0.97,
+    "extraction_model": "featherless/<model>",
+    "created_at": "2026-10-07T18:00:00Z"
+  },
+  "variant_id": "var_393be9c8a9c0",
+  "variant_index": 0,
+  "cursor": 0,
+  "status": "active",
+  "messages": [
+    {
+      "role": "counterpart",
+      "text": "I'm with Alder Mutual's member-services desk. I'm handling a review on your membership record; is this a convenient time to go through the notice?",
+      "stage": "authority",
+      "intensities": {
+        "urgency": 0,
+        "fear": 0,
+        "authority": 25,
+        "reward": 0,
+        "trust": 0,
+        "payment_pressure": 0
+      }
+    }
+  ],
+  "observations": [],
+  "report": null,
+  "counterpart_messages": 1
 }
