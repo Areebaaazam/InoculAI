@@ -172,7 +172,8 @@ def parse_classifier_json(raw: str) -> dict:
 
 
 def _cache_path() -> Path:
-    return Path(os.environ.get("SENTINEL_CACHE_PATH", str(ROOT / ".sentinel_cache.sqlite3")))
+    default = "/tmp/inoculai/sentinel.sqlite3" if os.environ.get("VERCEL") == "1" else str(ROOT / ".sentinel_cache.sqlite3")
+    return Path(os.environ.get("SENTINEL_CACHE_PATH", default))
 
 
 def _cache_connection() -> sqlite3.Connection:

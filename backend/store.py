@@ -12,8 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCK = threading.RLock()
 
 
+def _default_data_path() -> str:
+    return "/tmp/inoculai/application.sqlite3" if os.environ.get("VERCEL") == "1" else str(ROOT / "backend/data/application.sqlite3")
+
+
 def connect():
-    path = Path(os.environ.get("HONEYPOT_DATA_PATH", str(ROOT / "backend/data/application.sqlite3")))
+    path = Path(os.environ.get("HONEYPOT_DATA_PATH", _default_data_path()))
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, timeout=30)
     connection.execute("CREATE TABLE IF NOT EXISTS records (bucket TEXT, id TEXT, data TEXT NOT NULL, PRIMARY KEY(bucket,id))")
