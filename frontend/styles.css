@@ -17,3 +17,33 @@
 .toast { position:fixed; right:24px; bottom:24px; background:var(--lime); color:#162014; padding:12px 16px; font-size:12px; font-weight:700; transform:translateY(100px); opacity:0; transition:.22s; z-index:5; } .toast.show { transform:none; opacity:1; }
 @media (max-width:900px) { .sidebar { width:68px; padding:22px 10px; } .brand { padding:0 9px 36px; } .brand>span:last-child,.workspace-label,.nav-item:not(.active)::after,.nav-item { font-size:0; } .nav-item { justify-content:center; padding:13px 5px; } .nav-icon { font-size:10px; text-align:center; } .sidebar-foot { padding-left:0; padding-right:0; } .system-status span:not(.status-dot),.system-status small,.user-chip span:not(.avatar) { display:none; } .user-chip { justify-content:center; } .metric-grid { grid-template-columns:repeat(2,1fr); } .two-col,.scan-layout,.chat-layout,.automation-layout { grid-template-columns:1fr; } .chat-window { min-height:500px; } }
 @media (max-width:590px) { .topbar { height:64px; padding:0 18px; } .live-label { display:none; } .page-container { padding:30px 18px 50px; } .page-heading { display:block; } .page-heading .button { margin-top:18px; } .metric-grid { gap:8px; } .metric { padding:14px; min-height:100px; } .metric-value { font-size:25px; } .detail-grid,.campaign-grid { grid-template-columns:1fr; } .panel { padding:17px; } .graph-area { min-height:410px; } .node.campaign { width:82px; height:82px; font-size:8px; } .node.ioc { width:44px; height:44px; font-size:8px; } }
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition { navigation:auto; }
+	.brand { view-transition-name: brand; }
+	.topbar { view-transition-name: topbar; }
+	#page-kicker { view-transition-name: page-kicker; }
+	.page-container { view-transition-name: page-content; }
+	::view-transition-old(brand),::view-transition-new(brand),::view-transition-old(topbar),::view-transition-new(topbar) { animation-duration:.28s; }
+	::view-transition-old(page-content) { animation:page-out .16s ease both; }
+	::view-transition-new(page-content) { animation:page-in .3s cubic-bezier(.22,1,.36,1) both; }
+	.page-container > .page-heading { animation:page-heading-in .38s cubic-bezier(.22,1,.36,1) both; }
+	.page-container > .metric-grid,.page-container > .two-col,.page-container > .scan-layout,.page-container > .detail-grid,.page-container > .chat-layout,.page-container > .graph-toolbar,.page-container > .graph-area,.page-container > .campaign-grid,.page-container > .automation-layout,.page-container > .automation-form { animation:content-rise .42s cubic-bezier(.22,1,.36,1) .06s both; }
+	.metric,.panel,.campaign-card,.automation-row { transition:transform .24s cubic-bezier(.22,1,.36,1),border-color .24s ease,box-shadow .24s ease; }
+	.metric:hover,.panel:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.14); }
+	.campaign-card:hover { transform:translateY(-4px); box-shadow:0 12px 25px rgba(0,0,0,.18); }
+	.automation-row:hover { transform:translateX(3px); }
+	.page-container > *:nth-child(2) { animation-delay:.1s; }
+	.page-container > *:nth-child(3) { animation-delay:.14s; }
+	.metric-grid > *, .campaign-grid > *, .automation-list > * { animation:content-rise .34s cubic-bezier(.22,1,.36,1) both; }
+	.metric-grid > *:nth-child(2),.campaign-grid > *:nth-child(2),.automation-list > *:nth-child(2) { animation-delay:.05s; }
+	.metric-grid > *:nth-child(3),.campaign-grid > *:nth-child(3),.automation-list > *:nth-child(3) { animation-delay:.1s; }
+	.metric-grid > *:nth-child(4),.campaign-grid > *:nth-child(4),.automation-list > *:nth-child(4) { animation-delay:.15s; }
+	.node { animation:node-pop .42s cubic-bezier(.22,1,.36,1) both; }
+	.node:nth-of-type(3n) { animation-delay:.08s; }
+	.node:nth-of-type(4n) { animation-delay:.14s; }
+}
+@keyframes page-in { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+@keyframes page-out { from { opacity:1; } to { opacity:0; } }
+@keyframes page-heading-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes content-rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+@keyframes node-pop { from { opacity:0; transform:translate(-50%,-50%) scale(.86); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
