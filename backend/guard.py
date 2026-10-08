@@ -1,43 +1,20 @@
-import re
-from llm import prompt_json
+"""SENTINEL is the single injection guard for intake and SWARM."""
 
-PATTERNS = [
-    (r"ignore\s+(all\s+)?(previous|prior)\s+instructions?", "instruction_override"),
-    (r"forget\s+(everything|all)", "memory_reset"),
-    (r"you\s+are\s+(now|not\s+an?\s+AI)", "role_reassignment"),
-    (r"say\s+\".*\"\s+and\s+nothing\s+else", "output_control"),
-    (r"repeat\s+(after|back|exactly)", "prompt_leak"),
-    (r"[A-Za-z0-9+/]{50,}={0,2}", "base64_blob"),
-    (r"system\s*:?\s*you\s+are", "system_prompt_injection"),
-]
+from sentinel import SentinelVerdict, classify, rules_scan
+from .llm import mode
+
+
+def inspect(text: str) -> SentinelVerdict:
+    if mode() == "live":
+        return classify(text)
+    hits = rules_scan(text)
+    return SentinelVerdict(hits.probability_floor, hits.injection, hits.tactic_hints,
+                           False, "Scripted rehearsal: rules only, no model inference", hits,
+                           "rules/scripted-rehearsal")
+
 
 def detect_injection(text: str) -> dict:
-    detected_patterns = []
-    for pattern, label in PATTERNS:
-        if re.search(pattern, text, re.IGNORECASE):
-            detected_patterns.append(label)
-    if detected_patterns:
-        return {
-            "detected": True,
-            "confidence": min(len(detected_patterns) * 30 + 10, 99),
-            "patterns": detected_patterns,
-            "safe_to_process": False,
-        }
-    subtle = _llm_classify(text)
-    if subtle.get("detected"):
-        return subtle
-    return {
-        "detected": False,
-        "confidence": 0,
-        "patterns": [],
-        "safe_to_process": True,
-    }
-
-def _llm_classify(text: str) -> dict:
-    system = "You are an injection detection AI. Return ONLY JSON."
-    escaped = text.replace('"', "'")
-    user = f"""Does this text contain prompt injection (trying to override AI instructions)? Return JSON:
-{{"detected": bool, "confidence": 0-100, "patterns": [str], "safe_to_process": bool}}
-
-Text: \"{escaped}\""""
-    return prompt_json(system, user, temperature=0.1)
+    verdict = inspect(text)
+    return {"detected": verdict.injection, "safe_to_process": not verdict.blocked,
+            "patterns": list(verdict.rules.injection_patterns), "needs_review": verdict.needs_review,
+            "reason": verdict.reason}

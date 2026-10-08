@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>HONEYPOT · Defensive practice lab</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="HONEYPOT home"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 35 12v16L20 37 5 28V12Z M20 12l7 4v8l-7 4-7-4v-8Z"/></svg><span>HONEYPOT<small>Defensive practice lab</small></span></a>
+    <nav aria-label="Workspaces"><button id="nav-analysis" class="nav-button selected" aria-current="page">Attack DNA</button><button id="nav-training" class="nav-button">Train me</button></nav>
+    <span id="mode-badge" class="mode-badge">Connecting…</span>
+  </header>
+  <div class="safety-strip"><span class="status-dot"></span>Fictional inbound only. No real contacts, credentials, links opened or payments.</div>
+  <div id="global-status" class="notice" role="status" aria-live="polite" hidden></div>
+
+  <main>
+    <section id="analysis-view" class="analysis-layout" aria-label="Attack analysis">
+      <aside class="inbox">
+        <div class="section-heading"><h2>Inbound lab</h2><span id="corpus-count" class="count">0</span></div>
+        <p class="muted small">Select a synthetic message or add a fictional scenario.</p>
+        <div id="message-list" class="message-list" aria-label="Bundled inbound messages"></div>
+        <details class="paste-box"><summary>Add a fictional message</summary>
+          <form id="paste-form">
+            <label for="paste-text">Message text</label><textarea id="paste-text" rows="5" maxlength="10000" required placeholder="Paste synthetic scam text…"></textarea>
+            <label class="checkbox-label"><input id="paste-consent" type="checkbox" required>I confirm this is fictional text.</label>
+            <button class="button secondary" type="submit">Analyze message</button>
+          </form>
+        </details>
+        <div class="inbox-footer">Scammers attacked AI.<br>Humans learned from it.</div>
+      </aside>
+
+      <div class="workspace">
+        <section class="source-panel panel">
+          <div class="section-heading"><h2>Source message</h2><span id="source-channel" class="tag"></span></div>
+          <p id="source-text" class="source-text">Choose an inbound message.</p>
+          <div class="source-actions"><span id="source-id" class="mono muted"></span><button id="inspect-button" class="button secondary" disabled>Inspect message</button></div>
+          <div id="scan-status" class="scan-status" role="status" hidden></div>
+        </section>
+
+        <section class="dna-panel panel" aria-labelledby="dna-heading">
+          <div class="dna-heading"><div><h1 id="dna-heading">Anatomy of an attack</h1><p id="dna-provenance" class="muted small">The pressure behind the message.</p></div><div id="dna-badges" class="badges"></div></div>
+          <div id="dna-empty" class="empty-state">Inspect a suspicious message to reveal its tactics.</div>
+          <div id="dna-content" hidden>
+            <div class="dna-grid"><div><h2>Tactic profile</h2><div id="tactic-bars" class="tactic-bars"></div></div><div class="chain-column"><h2>Attack chain</h2><p class="muted small">The order the pressure arrives.</p><ol id="attack-chain" class="attack-chain"></ol></div></div>
+            <div class="ioc-section"><div class="section-heading"><h2>Indicators of compromise</h2><span class="muted small">Inert evidence · never opened</span></div><div id="ioc-list" class="ioc-list"></div></div>
+            <div class="dna-footer"><span id="dna-model" class="mono muted small"></span><button id="train-this-button" class="button primary">Practice a new variant</button></div>
+          </div>
+        </section>
+
+        <section class="panel swarm-panel" aria-labelledby="swarm-heading">
+          <div class="section-heading"><div><h2 id="swarm-heading">SWARM · Margaret</h2><p class="muted small">One AI victim. Questions expose the next tactic.</p></div><button id="start-victim" class="button secondary" disabled>Start victim conversation</button></div>
+          <div id="victim-transcript" class="victim-transcript" aria-live="polite"><p class="muted small">Start with the selected message, then supply simulated inbound replies.</p></div>
+          <form id="victim-form" class="inline-form"><label class="sr-only" for="victim-text">Next fictional scammer message</label><textarea id="victim-text" rows="2" maxlength="10000" placeholder="Next fictional scammer message…" disabled required></textarea><button id="victim-send" class="button secondary" disabled>Send inbound</button></form>
+          <div id="victim-state" class="mono muted small"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="training-view" class="training-layout" aria-label="Training workspace" hidden>
+      <div class="training-intro"><div><p id="training-source" class="mono muted small">Choose a DNA record first</p><h1>Recognize the pressure.<br>Keep your judgment.</h1><p class="muted">A new disguise. The same attack chain. Practice pausing before you act.</p></div><button id="back-to-dna" class="button secondary">Back to attack DNA</button></div>
+      <div class="training-grid">
+        <section class="panel chat-panel" aria-labelledby="chat-heading">
+          <div class="section-heading"><h2 id="chat-heading">Fictional practice chat</h2><span id="training-stage" class="mono muted small">Not started</span></div>
+          <div id="training-consent" class="training-consent"><p>The counterpart stays in character during the drill. Use training markers only; never provide real data.</p><label class="checkbox-label"><input id="training-agree" type="checkbox">I want to take part in this fictional drill.</label><button id="training-start" class="button primary" disabled>Begin practice</button></div>
+          <div id="chat-messages" class="chat-messages" role="log" aria-label="Practice conversation" aria-live="polite"></div>
+          <form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-text">Your practice reply</label><textarea id="chat-text" rows="2" maxlength="10000" placeholder="Your practice reply. No real personal data." disabled required></textarea><button id="chat-send" class="button primary" disabled>Send reply</button></form>
+          <div class="chat-controls"><span id="chat-progress" class="muted small">Enter to send · Shift+Enter for a new line</span><button id="training-end" class="button secondary" disabled>Stop and see report</button></div>
+          <p id="training-error" class="error-text" role="alert" hidden></p>
+        </section>
+        <aside class="training-sidebar">
+          <details class="panel budget-panel"><summary>Coach view · tactic ceilings</summary><p class="muted small">These are the scenario's intensity limits, not your scores. Expand after the drill to review the pressure.</p><div id="budget-bars" class="tactic-bars"></div></details>
+          <section id="report-panel" class="panel report-panel" aria-labelledby="report-heading"><h2 id="report-heading" tabindex="-1">Your immunity report</h2><div id="report-empty" class="empty-state">Your report appears after you practice and end the session.</div><div id="report-content" hidden><div class="immunity-score"><span id="report-score"></span><span>training points / 100</span></div><div id="report-scores" class="report-scores"></div><div id="report-coaching" class="coaching"></div><p id="report-disclaimer" class="disclaimer"></p><p id="report-ids" class="mono muted small"></p></div></section>
+          <button id="practice-again" class="button secondary" hidden>Practice another disguise</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer class="page-footer">HONEYPOT · synthetic only, defensive only, inbound only.</footer>
+</body>
+</html>

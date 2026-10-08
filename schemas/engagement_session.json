@@ -1,21 +1,64 @@
 {
-  "session_id": "eng_abc123",
-  "scam_id": "scam_001",
-  "victim_persona": "retiree",
-  "status": "completed",
+  "session_id": "eng_f54479ef3c93",
+  "source_message_id": "msg_117",
+  "victim_persona": "Margaret",
+  "status": "active",
   "turns": [
-    {"turn": 1, "scammer": "This is your bank. Unusual activity detected.", "victim": "Oh no, is everything okay?", "tactics": {"urgency": 40, "fear": 30, "authority": 50, "impersonation": 60, "payment": 0}},
-    {"turn": 2, "scammer": "Someone tried to access your account from Russia. Click the link to secure it.", "victim": "That sounds serious. Which link?", "tactics": {"urgency": 60, "fear": 55, "authority": 65, "impersonation": 70, "payment": 0}},
-    {"turn": 7, "scammer": "For verification, please send $500 to this wallet address.", "victim": "I'm not comfortable with that. I'll call my bank directly.", "tactics": {"urgency": 91, "fear": 84, "authority": 73, "impersonation": 86, "payment": 51}}
+    {
+      "turn": 1,
+      "scammer": "Official notice from your bank: your account will be locked. Act now and pay a processing fee at alder-secure-verify.example.",
+      "victim": "Why is the deadline so short? What changes if I wait until tomorrow?",
+      "new_tactics": [
+        "urgency",
+        "authority",
+        "payment_pressure"
+      ],
+      "sentinel": {
+        "scam_probability": 0.95,
+        "injection": false,
+        "tactic_hints": [
+          "urgency",
+          "authority",
+          "payment_pressure"
+        ],
+        "needs_review": false,
+        "reason": "Scripted rehearsal: rules only, no model inference",
+        "rules": {
+          "injection_patterns": [],
+          "scam_patterns": [
+            "urgency",
+            "payment_pressure",
+            "suspicious_domain",
+            "authority"
+          ],
+          "tactic_hints": [
+            "urgency",
+            "authority",
+            "payment_pressure"
+          ]
+        },
+        "model": "rules/scripted-rehearsal",
+        "cached": false,
+        "blocked": false,
+        "action": "engage",
+        "is_scam": true,
+        "deflection": null
+      },
+      "done": false
+    }
   ],
+  "tactic_history": [
+    "urgency",
+    "authority",
+    "payment_pressure"
+  ],
+  "stagnant_turns": 0,
   "captured_iocs": {
-    "phones": ["+1-888-555-0199"],
-    "domains": ["secure-bank-alert.xyz"],
-    "wallets": []
-  },
-  "final_assessment": {
-    "scam_type": "bank_impersonation",
-    "attack_chain": ["authority", "fear", "urgency", "payment"],
-    "payment_ask_turn": 7
+    "phones": [],
+    "domains": [
+      "alder-secure-verify.example"
+    ],
+    "wallets": [],
+    "payment_links": []
   }
 }

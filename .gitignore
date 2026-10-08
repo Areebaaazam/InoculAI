@@ -7,8 +7,12 @@ node_modules/
 __pycache__/
 backend/data/sessions.json
 backend/data/immunity.json
+.sentinel_cache.sqlite3*
+.pytest_cache/
+backend/data/*.sqlite3*
 *.pyc
 .env
 venv/
 .venv/
 node_modules/
+.gstack/

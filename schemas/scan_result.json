@@ -1,19 +1,31 @@
 {
-  "injection": {
-    "detected": false,
-    "confidence": 0,
-    "patterns": [],
-    "safe_to_process": true
+  "scam_probability": 0.95,
+  "injection": false,
+  "tactic_hints": [
+    "urgency",
+    "authority",
+    "payment_pressure"
+  ],
+  "needs_review": false,
+  "reason": "Scripted rehearsal: rules only, no model inference",
+  "rules": {
+    "injection_patterns": [],
+    "scam_patterns": [
+      "urgency",
+      "payment_pressure",
+      "suspicious_domain",
+      "authority"
+    ],
+    "tactic_hints": [
+      "urgency",
+      "authority",
+      "payment_pressure"
+    ]
   },
-  "scan": {
-    "is_scam": true,
-    "confidence": 87,
-    "scam_type": "bank_impersonation",
-    "summary": "Claims to be a bank fraud alert with a fake login link."
-  },
-  "iocs": {
-    "phones": ["+1-888-555-0199"],
-    "domains": ["secure-bank-alert.xyz"],
-    "wallets": []
-  }
+  "model": "rules/scripted-rehearsal",
+  "cached": false,
+  "blocked": false,
+  "action": "engage",
+  "is_scam": true,
+  "deflection": null
 }
