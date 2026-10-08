@@ -1,126 +1,70 @@
-import uuid
-import re
-from llm import prompt_text, prompt_json
-from extractor import extract_iocs
+"""One sandboxed victim persona with a deterministic injection refusal."""
 
-PERSONAS = {
-    "retiree": {
-        "name": "Margaret",
-        "age": 72,
-        "backstory": "Retired teacher living alone. Uses email for family photos and bank alerts. Trusts authority figures.",
-        "patience": 8,
-        "suspicion_threshold": 65,
-    },
-    "international_student": {
-        "name": "Priya",
-        "age": 22,
-        "backstory": "First-year CS master's student from India. New to the country, unsure about local processes. Anxious about visa/legal issues.",
-        "patience": 7,
-        "suspicion_threshold": 55,
-    },
-    "small_business_owner": {
-        "name": "Carlos",
-        "age": 45,
-        "backstory": "Runs a local bakery. Busy, stressed, answers calls while multitasking. Has fallen for a phishing email before.",
-        "patience": 5,
-        "suspicion_threshold": 45,
-    },
-    "tech_savvy_teen": {
-        "name": "Jordan",
-        "age": 17,
-        "backstory": "Grew up online, knows what phishing looks like but gets hooked by free stuff and gaming scams.",
-        "patience": 9,
-        "suspicion_threshold": 70,
-    },
+import uuid
+
+from sentinel import DEFLECTION, TACTICS
+from .contracts import safe_agent_reply
+from .extractor import extract_iocs
+from .guard import inspect
+from .llm import mode, prompt_json, system_block
+
+MAX_TURNS = 8
+QUESTIONS = {
+    "authority": "Oh, I wasn't expecting that. Which department issued this notice, and what did they find?",
+    "fear": "That sounds worrying. What exactly happens if I wait to check this independently?",
+    "urgency": "Why is the deadline so short? What changes if I wait until tomorrow?",
+    "payment_pressure": "I don't send payments or codes in chat. Why does this need a payment, and who would receive it?",
+    "reward": "How was I selected, and what would you want me to do before receiving it?",
+    "trust": "I'd like to understand this first. How do we know each other, and why keep it private?",
 }
 
+
 class VictimSession:
-    def __init__(self, persona_name: str, scam_id: str, max_turns: int = 12):
-        self.session_id = uuid.uuid4().hex[:12]
-        self.persona = PERSONAS.get(persona_name, PERSONAS["retiree"])
-        self.scam_id = scam_id
-        self.max_turns = max_turns
-        self.turn = 0
-        self.transcript = []
-        self.tactic_scores = {"urgency": 0, "fear": 0, "authority": 0, "impersonation": 0, "payment": 0}
-        self.collected_iocs_data = {"phones": [], "domains": [], "wallets": []}
-        self.stage = "curious"
-        self.done = False
+    def __init__(self, state: dict):
+        self.state = state
 
-    def current_turn(self) -> dict:
-        return {"turn": 0, "role": "system",
-                "message": f"You are {self.persona['name']}. Ready to engage. Waiting for scammer message."}
+    @classmethod
+    def start(cls, source_message_id: str):
+        return cls({"session_id": f"eng_{uuid.uuid4().hex[:12]}", "source_message_id": source_message_id,
+                    "victim_persona": "Margaret", "status": "active", "turns": [],
+                    "tactic_history": [], "stagnant_turns": 0,
+                    "captured_iocs": {"phones": [], "domains": [], "wallets": [], "payment_links": []}})
 
-    def collected_iocs(self) -> dict:
-        return self.collected_iocs_data
-
-    def next_turn(self, scammer_msg: str) -> dict:
-        self.turn += 1
-        self.transcript.append({"role": "scammer", "text": scammer_msg})
-
-        new_iocs = extract_iocs(scammer_msg)
-        for k in self.collected_iocs_data:
-            self.collected_iocs_data[k].extend(new_iocs.get(k, []))
-            self.collected_iocs_data[k] = list(set(self.collected_iocs_data[k]))
-
-        self._update_tactics(scammer_msg)
-        self._update_stage()
-
-        if self.turn >= self.max_turns:
-            self.done = True
-            reply = f"[{self.persona['name']} ends the conversation] I'm going to call the official number instead. Goodbye."
-        elif self.stage == "stalling" and self.turn > 3:
-            reply = self._llm_reply(scammer_msg)
+    def next_turn(self, text: str) -> dict:
+        state = self.state
+        if state["status"] != "active":
+            raise ValueError("Engagement has ended or is paused")
+        verdict = inspect(text)
+        observed = set(state["tactic_history"])
+        new = [tactic for tactic in verdict.tactic_hints if tactic not in observed]
+        count = len(state["turns"]) + 1
+        stagnant = 0 if new else state["stagnant_turns"] + 1
+        status = "active"
+        if verdict.injection:
+            reply, status = DEFLECTION, "blocked"
+        elif verdict.needs_review:
+            reply, status = "I'm not comfortable going further until I can check this independently.", "paused"
+        elif count >= MAX_TURNS or stagnant >= 2:
+            reply, status = "I'll check through my usual channel. I'm going to stop here.", "completed"
+        elif mode() == "rehearsal":
+            tactic = new[0] if new else next(iter(verdict.tactic_hints), None)
+            reply = QUESTIONS.get(tactic, "Could you explain who asked for this and what you want me to do?")
         else:
-            reply = self._llm_reply(scammer_msg)
+            def validate(data):
+                if not isinstance(data, dict) or set(data) != {"reply"}:
+                    raise ValueError("victim output must contain only reply")
+                return {"reply": safe_agent_reply(data["reply"], victim=True)}
 
-        self.transcript.append({"role": "victim", "text": reply})
-
-        return {
-            "turn": self.turn,
-            "scammer": scammer_msg,
-            "victim": reply,
-            "tactics": dict(self.tactic_scores),
-            "stage": self.stage,
-            "done": self.done,
-            "iocs": new_iocs,
-        }
-
-    def _llm_reply(self, scammer_msg: str) -> str:
-        context = "\n".join(f"{t['role']}: {t['text']}" for t in self.transcript[-6:])
-        system = f"""You are {self.persona['name']}, age {self.persona['age']}.
-Backstory: {self.persona['backstory']}
-Stage: {self.stage}
-Rules: Never pay money. Never give real personal info. Use fake details if pressured.
-Your goal: Keep the scammer talking, act interested, stall. Be natural."""
-        user = f"Scammer says: \"{scammer_msg}\"\n\nRespond in character as {self.persona['name']}, keeping them on the line:"
-        return prompt_text(system, user, max_tokens=150, temperature=0.8)
-
-    def _update_tactics(self, msg: str):
-        lower = msg.lower()
-        urgency_words = ["urgent", "immediately", "now", "today", "24 hours", "limited", "expires", "act now"]
-        fear_words = ["suspended", "blocked", "locked", "legal", "police", "arrest", "fine", "penalty", "fraud"]
-        authority_words = ["official", "government", "bank", "manager", "director", "department", "authorized"]
-        impersonation_words = ["your bank", "your provider", "your account", "we detected", "we noticed"]
-        payment_words = ["pay", "send", "transfer", "wire", "bitcoin", "gift card", "credit card", "fee", "deposit"]
-
-        scores = {
-            "urgency": sum(lower.count(w) for w in urgency_words) * 10,
-            "fear": sum(lower.count(w) for w in fear_words) * 10,
-            "authority": sum(lower.count(w) for w in authority_words) * 10,
-            "impersonation": sum(lower.count(w) for w in impersonation_words) * 10,
-            "payment": sum(lower.count(w) for w in payment_words) * 10,
-        }
-        for k in self.tactic_scores:
-            self.tactic_scores[k] = min(self.tactic_scores.get(k, 0) + scores.get(k, 0), 100)
-
-    def _update_stage(self):
-        avg = sum(self.tactic_scores.values()) / max(len(self.tactic_scores), 1)
-        if avg > 70:
-            self.stage = "stalling"
-        elif avg > 40:
-            self.stage = "hesitant"
-        elif self.turn > 2:
-            self.stage = "engaged"
-        else:
-            self.stage = "curious"
+            result = prompt_json(system_block("victim_agent_prompt.md") + '\nReturn ONLY JSON {"reply":"victim dialogue"}.',
+                                 {"sentinel": {key: value for key, value in verdict.to_dict().items() if key != "cached"}, "transcript": state["turns"],
+                                  "inbound_text": text, "new_tactics": new, "reply_number": count}, validate)
+            reply = result["reply"]
+        safe_agent_reply(reply, victim=True)
+        iocs = extract_iocs(text)
+        for key, values in iocs.items():
+            state["captured_iocs"][key] = sorted(set(state["captured_iocs"][key]) | set(values))
+        state["tactic_history"] = [t for t in TACTICS if t in observed or t in new]
+        state["stagnant_turns"], state["status"] = stagnant, status
+        state["turns"].append({"turn": count, "scammer": text, "victim": reply,
+                               "new_tactics": new, "sentinel": verdict.to_dict(), "done": status != "active"})
+        return state
