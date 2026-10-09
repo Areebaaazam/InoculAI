@@ -9,7 +9,17 @@ const score = value => Math.round(Number(value || 0));
 const showToast = message => { const toast = document.querySelector('#toast'); if (!toast) return; toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2800); };
 function failure(error) { state.error = error instanceof Error ? error.message : String(error); showToast(state.error); }
 async function request(path, options = {}) { const response = await fetch(`${API}${path}`, {headers:{'Content-Type':'application/json', ...(options.headers || {})}, ...options}); let body = null; try { body = await response.json(); } catch { body = null; } if (!response.ok) throw new Error(body?.detail || body?.error || `Request failed (${response.status})`); return body; }
-function shell(content, kicker) { document.querySelector('#page-kicker').textContent = kicker.toUpperCase(); app.innerHTML = content; }
+function shell(content, kicker) {
+  const update = () => {
+    document.querySelector('#page-kicker').textContent = kicker.toUpperCase();
+    app.innerHTML = content;
+  };
+  if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.startViewTransition(update);
+  } else {
+    update();
+  }
+}
 function navigate(view) { state.view = view; document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === view)); ({dashboard,scan,engage,dna:dnaView,graph,train,campaigns,automations}[view] || dashboard)(); }
 function bars(data = {}) { return `<div class="mini-bars">${TACTICS.map(key => `<div class="bar-line"><span>${esc(label(key))}</span><div class="bar-track"><div class="bar-fill" style="width:${score(data[key])}%"></div></div><span class="bar-value">${score(data[key])}</span></div>`).join('')}</div>`; }
 function iocs(data) { const values = Object.values(data || {}).flat(); return values.length ? `<div class="ioc-list">${values.map(item => `<span class="ioc">${esc(item)}</span>`).join('')}</div>` : '<span class="hint">No identifiers captured.</span>'; }
@@ -44,6 +54,35 @@ function createAutomation(event) { event.preventDefault(); const data=new FormDa
 function toggleAutomation(id) { saveAutomations(getAutomations().map(item=>item.id===id?{...item,enabled:!item.enabled}:item)); automations(); }
 function triggerAutomation(trigger,context) { if(!trigger)return; const workspace=getWorkspace(), next=getAutomations().map(item=>{if(item.enabled&&item.trigger===trigger){const key=`${item.id}:${context.message?.id||context.training?.session_id||context.report?.user_session||'event'}`;if(!workspace.runs.includes(key)){if(item.action==='Create a review item')workspace.reviews.push({id:`review-${Date.now()}`,source_id:context.message?.id,reason:'Blocked or needs-review scan'});if(item.action==='Add it to Campaigns'&&context.dna)workspace.campaigns.push({id:context.dna.campaign_id,dna_id:context.dna.id});if(item.action==='Save the immunity report'&&context.report)workspace.reports.push(context.report);workspace.runs.push(key);return {...item,runs:item.runs+1,lastRun:'Just now'};}}return item;});saveAutomations(next);saveWorkspace(workspace); }
 document.addEventListener('click',event=>{const target=event.target.closest('[data-go]');if(target){event.preventDefault();if(target.dataset.go==='engage')startEngagement();else if(target.dataset.go==='train')startTraining();else navigate(target.dataset.go);return;}const filter=event.target.closest('[data-filter]');if(filter)return campaigns(filter.dataset.filter);const card=event.target.closest('[data-dna]');if(card){request('/dna').then(data=>{state.dna=(data.dna_records||[]).find(item=>item.id===card.dataset.dna)||state.dna;navigate('dna');}).catch(failure);return;}if(event.target.closest('#scan-button'))return runScan();if(event.target.closest('#engage-next'))return nextEngagement();if(event.target.closest('#train-send'))return sendTraining();if(event.target.closest('#end-training'))return endTraining();if(event.target.closest('#refresh-graph'))return loadGraph();if(event.target.closest('#add-automation')){document.querySelector('#automation-form').hidden=false;event.target.hidden=true;return;}if(event.target.closest('#cancel-automation'))return automations();const toggle=event.target.closest('[data-toggle-automation]');if(toggle)return toggleAutomation(toggle.dataset.toggleAutomation);const run=event.target.closest('[data-run-automation]');if(run){const item=getAutomations().find(value=>value.id===run.dataset.runAutomation);return showToast(item?.enabled?'Run now requires a matching workspace event':'Enable this automation before running it');}if(event.target.closest('[data-retry]'))return navigate(state.view);if(event.target.closest('[aria-label="Notifications"]'))return showToast(`${getWorkspace().reviews.length} local review item(s)`);if(event.target.closest('.avatar.small'))return showToast(`${getWorkspace().reports.length} saved report(s) in local workspace`);});
+document.addEventListener('pointermove', event => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const card = event.target.closest('.panel, .metric, .campaign-card, .automation-row');
+  if (card) {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--pointer-x', `${event.clientX - rect.left}px`);
+    card.style.setProperty('--pointer-y', `${event.clientY - rect.top}px`);
+  }
+  const button = event.target.closest('.button');
+  if (button && !button.disabled) {
+    const rect = button.getBoundingClientRect();
+    const x = (event.clientX - rect.left - rect.width / 2) * 0.08;
+    const y = (event.clientY - rect.top - rect.height / 2) * 0.08;
+    button.style.setProperty('--magnetic-x', `${x}px`);
+    button.style.setProperty('--magnetic-y', `${y}px`);
+  }
+});
+document.addEventListener('pointerout', event => {
+  const card = event.target.closest('.panel, .metric, .campaign-card, .automation-row');
+  if (card && !card.contains(event.relatedTarget)) {
+    card.style.removeProperty('--pointer-x');
+    card.style.removeProperty('--pointer-y');
+  }
+  const button = event.target.closest('.button');
+  if (button && !button.contains(event.relatedTarget)) {
+    button.style.removeProperty('--magnetic-x');
+    button.style.removeProperty('--magnetic-y');
+  }
+});
 document.addEventListener('submit',event=>{if(event.target.id==='automation-form')createAutomation(event);});
 document.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.id==='engage-input')nextEngagement();if(event.key==='Enter'&&event.target.id==='train-input'&&!event.shiftKey){event.preventDefault();sendTraining();}});
 (async function init(){await loadHealth();navigate('dashboard');})();

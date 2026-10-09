@@ -48,3 +48,30 @@
 @keyframes page-heading-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
 @keyframes content-rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 @keyframes node-pop { from { opacity:0; transform:translate(-50%,-50%) scale(.86); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+
+@media (prefers-reduced-motion: no-preference) {
+	.panel,.metric,.campaign-card,.automation-row { position:relative; overflow:hidden; }
+	.panel::before,.metric::before,.campaign-card::before,.automation-row::before {
+		content:''; position:absolute; inset:0; pointer-events:none; opacity:0;
+		background:radial-gradient(220px circle at var(--pointer-x) var(--pointer-y),rgba(212,243,106,.12),transparent 72%);
+		transition:opacity .25s ease;
+	}
+	.panel:hover::before,.metric:hover::before,.campaign-card:hover::before,.automation-row:hover::before { opacity:1; }
+	.button {
+		transform:translate3d(var(--magnetic-x,0),var(--magnetic-y,0),0);
+		transition:transform .22s cubic-bezier(.22,1,.36,1),border-color .2s ease,box-shadow .2s ease;
+	}
+	.button:hover { box-shadow:0 8px 20px rgba(212,243,106,.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,*::before,*::after {
+		animation-duration:.01ms !important; animation-iteration-count:1 !important;
+		scroll-behavior:auto !important; transition-duration:.01ms !important;
+	}
+	.button { transform:none !important; }
+}
+
+@media (pointer: coarse) {
+	.panel::before,.metric::before,.campaign-card::before,.automation-row::before { display:none; }
+}
