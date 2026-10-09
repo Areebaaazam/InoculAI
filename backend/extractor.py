@@ -21,8 +21,8 @@ extra keys or fenced JSON. For a scam with no distinct tactic use ["action"]."""
 def extract_iocs(text: str) -> dict:
     validate_text(text)
     urls = re.findall(r"https?://[^\s<>\"']+", text)
-    domains = {m.group().lower() for m in re.finditer(r"\b(?:[a-z0-9-]+\.)+[a-z]{2,63}\b", text, re.I)}
-    domains.update(urlsplit(url).hostname for url in urls if urlsplit(url).hostname)
+    domains = {m.group().rstrip(".,;:!?)]}").lower() for m in re.finditer(r"\b(?:[a-z0-9-]+\.)+[a-z]{2,63}\b", text, re.I)}
+    domains.update(urlsplit(url).hostname.rstrip(".,;:!?)]}").lower() for url in urls if urlsplit(url).hostname)
     phones = sorted(set(re.findall(r"(?<!\w)\+?\d[\d ()-]{7,18}\d(?!\w)", text)))
     wallets = sorted(set(re.findall(r"\b0x[a-fA-F0-9]{40}\b|\bbc1[a-zA-HJ-NP-Z0-9]{25,62}\b", text)))
     return Indicators(phones=phones, domains=sorted(domains), wallets=wallets,
