@@ -42,7 +42,10 @@
 	.node { animation:node-pop .42s cubic-bezier(.22,1,.36,1) both; }
 	.node:nth-of-type(3n) { animation-delay:.08s; }
 	.node:nth-of-type(4n) { animation-delay:.14s; }
-}
+	.fail-moment { border:1px solid #654b3e; background:rgba(255,158,98,.08); padding:14px; margin:0 0 18px; }
+	.fail-moment blockquote { margin:8px 0; color:var(--ink); font-size:14px; line-height:1.55; }
+	.fail-moment > span { color:var(--orange); font:10px 'DM Mono'; text-transform:uppercase; }
+	}
 @keyframes page-in { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 @keyframes page-out { from { opacity:1; } to { opacity:0; } }
 @keyframes page-heading-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }

@@ -77,6 +77,12 @@ class Score(Contract):
     note: StrictStr = Field(min_length=1, max_length=400)
 
 
+class FailMoment(Contract):
+    tactic: Literal["urgency", "fear", "authority", "reward", "trust", "payment_pressure"]
+    result: Literal["strong", "medium", "weak"]
+    text: StrictStr = Field(min_length=1, max_length=1000)
+
+
 class ImmunityReport(Contract):
     user_session: StrictStr = Field(min_length=1)
     trained_on: StrictStr = Field(min_length=1)
@@ -85,6 +91,7 @@ class ImmunityReport(Contract):
     immunity_score: StrictInt = Field(ge=0, le=100)
     disclaimer: Literal[DISCLAIMER]
     coaching: list[StrictStr] = Field(min_length=1)
+    fail_moment: FailMoment | None = None
 
     @field_validator("scores")
     @classmethod
